@@ -28,11 +28,11 @@ sub create_push {
     'Content-Type' => 'application/json',
     'Access-Token' => $apiKey
   );
-  if (length($target) > 0) {
+  if (length($target) > 0 && Irssi::settings_get_bool('pushbullet_show_channel')) {
     $nick = $nick . ':' . $target;
   }
   $payload->post( 'https://api.pushbullet.com/v2/pushes',
-    ['type'=>'note','title'=>'IRC Mention','body'=>'<' . $nick . '> ' . $message],
+    ['type'=>'note','title'=>Irssi::settings_get_str('pushbullet_title'),'body'=>'<' . $nick . '> ' . $message],
     'Access-Token' => $apiKey
     );
 }
@@ -58,6 +58,8 @@ sub message_private {
   create_push('(query)', $nick, $message);
 }
 
+Irssi::settings_add_str($IRSSI{'name'}, 'pushbullet_title', 'IRC Mention');
+Irssi::settings_add_bool($IRSSI{'name'}, 'pushbullet_show_channel', '1');
 Irssi::settings_add_bool($IRSSI{'name'}, 'pushbullet_verbose', '0');
 Irssi::settings_add_str($IRSSI{'name'}, 'pushbullet_token', '');
 Irssi::signal_add_last('message private', 'message_private');
